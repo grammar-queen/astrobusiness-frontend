@@ -1385,7 +1385,7 @@ Optimal windows for key life decisions (when to start learning something new, wh
         { id: 'q1', label: 'Describe your current life and professional situation', type: 'textarea' },
         { id: 'q2', label: 'What gives you the greatest fulfillment in life? What makes you feel truly alive?', type: 'textarea' },
         { id: 'q3', label: 'What do you feel is missing? What do you long for deep down?', type: 'textarea' },
-        { id: 'q4', label: 'What talents do you have that aren\\'t fully used?', type: 'textarea' },
+        { id: 'q4', label: "What talents do you have that aren't fully used?", type: 'textarea' },
         { id: 'q5', label: 'If you could start over, what would you do differently?', type: 'textarea' }
     ]
 }
@@ -1830,34 +1830,38 @@ async function handlePayment() {
         }
         console.log('✓ Service questions OK');
 
-        // CRITICAL STEP: Calculate the final price
-        const priceDetails = calculateFinalPrice();
-
-        // UPDATE elements with the final amount (in case discount changed)
-        elements.update({
-            amount: priceDetails.finalPrice * 100,
-            currency: 'usd'
-        });
-        console.log('✓ Elements updated with final amount');
-
         console.log('=== CREATING PAYMENT INTENT ===');
-        console.log('Amount:', priceDetails.finalPrice, 'USD');
-        console.log('Base:', priceDetails.basePrice, 'USD');
-        console.log('Discount:', priceDetails.hasDiscount);
+        console.log('Service:', currentService, 'Delivery:', selectedDelivery);
 
-        // CREATE the payment intent with the final price
+        // The server computes the real price from its own price table (and
+        // validates any discount code) — we never send a client-calculated
+        // amount, so it can't be tampered with in the browser.
         const intentResponse = await fetch(`${API_URL}/create-payment-intent`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                amount: priceDetails.finalPrice
+            body: JSON.stringify({
+                service: currentService,
+                delivery: selectedDelivery,
+                discountCode: document.getElementById('discountCode').value || null
             })
         });
-        
+
+        if (!intentResponse.ok) {
+            throw new Error('Could not start payment. Please try again.');
+        }
+
         const intentData = await intentResponse.json();
         clientSecret = intentData.clientSecret;
-        
-        console.log('✓ Payment intent created:');
+        const finalAmount = intentData.amount;
+
+        console.log('✓ Payment intent created. Amount:', finalAmount, 'USD');
+
+        // UPDATE elements with the server-confirmed amount
+        elements.update({
+            amount: finalAmount * 100,
+            currency: 'usd'
+        });
+        console.log('✓ Elements updated with final amount');
         
         // Pass clientSecret to elements
         await elements.submit();
@@ -1899,7 +1903,7 @@ async function handlePayment() {
 
         // SAVE ORDER
         try {
-            await submitOrder(paymentIntent.id);
+            await submitOrder(paymentIntent.id, finalAmount);
             console.log('✓ Order saved and success page shown');
 
         } catch (orderError) {
@@ -1937,17 +1941,17 @@ async function handlePayment() {
     }
 }
 
-async function submitOrder(paymentIntentId) {
+async function submitOrder(paymentIntentId, finalAmount) {
     const service = servicesData[currentService];
     const priceDetails = calculateFinalPrice();
-    
+
     const orderData = {
         orderNumber: 'AF' + Date.now(),
         timestamp: new Date().toISOString(),
         service: currentService,
         serviceTitle: service.title,
         delivery: selectedDelivery,
-        price: priceDetails.finalPrice,
+        price: finalAmount,
         originalPrice: selectedDelivery === 'standard' ? service.standardPrice : service.expressPrice,
         discountApplied: priceDetails.hasDiscount,
         paymentIntentId: paymentIntentId,
