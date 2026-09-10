@@ -971,29 +971,17 @@
 
 <h3>Billing Details</h3>
 
-<!-- TODO: confirm tax treatment for international customers with accountant -->
-<div class="form-group">
-    <label style="display: flex; align-items: center; cursor: pointer;">
-        <input type="checkbox" id="wantInvoice" onchange="toggleInvoiceFields()" style="width: auto; margin-right: 10px;">
-        I need a VAT invoice
-    </label>
-</div>
-
-<div id="invoiceFields" style="display: none;">
-    <div class="form-group">
-        <label>Company Name *</label>
-        <input type="text" id="companyName" placeholder="Company Name LLC">
-    </div>
-
-    <div class="form-group">
-        <label>Tax ID *</label>
-        <input type="text" id="nip" placeholder="1234567890">
-    </div>
-</div>
-
 <div class="form-group">
     <label>Full Name *</label>
     <input type="text" id="billingName" required>
+</div>
+
+<div class="form-group">
+    <label>Business Tax ID (optional)</label>
+    <input type="text" id="taxId" placeholder="EIN / VAT / Tax ID — leave blank for a personal purchase">
+    <p style="font-size: 0.85rem; opacity: 0.7; margin-top: 6px;">
+        You'll get a standard receipt automatically. Need a full business invoice with your company name and address? Email us at contact@astrofinance.pro after checkout and we'll send one over.
+    </p>
 </div>
 
 <div id="addressFields">
@@ -1608,48 +1596,6 @@ function closeModal() {
     showStep(1);
 }
 
-async function toggleInvoiceFields() {
-    const checkbox = document.getElementById('wantInvoice');
-    const invoiceFields = document.getElementById('invoiceFields');
-    const companyInput = document.getElementById('companyName');
-    const nipInput = document.getElementById('nip');
-    const streetInput = document.getElementById('street');
-    const postalInput = document.getElementById('postalCode');
-    const cityInput = document.getElementById('city');
-    
-    if (checkbox.checked) {
-        // Invoice - show company fields and require everything
-        invoiceFields.style.display = 'block';
-        companyInput.required = true;
-        nipInput.required = true;
-        streetInput.required = true;
-        postalInput.required = true;
-        cityInput.required = true;
-    } else {
-        // Private individual - hide company fields and don't require address
-        invoiceFields.style.display = 'none';
-        companyInput.required = false;
-        nipInput.required = false;
-        streetInput.required = false;
-        postalInput.required = false;
-        cityInput.required = false;
-    }
-        // Update summary after VAT change
-    if (currentStep === 3) {
-        updatePaymentSummary();
-
-        // Update elements with new amount (after VAT change)
-        const priceDetails = calculateFinalPrice();
-        if (elements) {
-            elements.update({
-                amount: priceDetails.finalPrice * 100,
-                currency: 'usd'
-            });
-            console.log('✓ Amount updated after VAT toggle:', priceDetails.finalPrice, 'USD');
-        }
-    }
-}
-
 function selectDelivery(type) {
     selectedDelivery = type;
     document.querySelectorAll('.delivery-option').forEach(el => el.classList.remove('selected'));
@@ -1733,17 +1679,12 @@ function calculateFinalPrice() {
         basePrice = discountedPrice;
     }
 
-    // Add VAT if checkbox is checked
-    const wantsInvoice = document.getElementById('wantInvoice').checked;
-    const vatAmount = wantsInvoice ? Math.round(basePrice * 0.23) : 0;
-    const finalPrice = basePrice + vatAmount;
-    
+    const finalPrice = basePrice;
+
     return {
         basePrice,
-        vatAmount,
         finalPrice,
-        hasDiscount: appliedDiscount && discountedPrice,
-        hasVAT: wantsInvoice
+        hasDiscount: appliedDiscount && discountedPrice
     };
 }
 
@@ -1838,10 +1779,6 @@ function updatePaymentSummary() {
 
     priceHTML += `$${priceDetails.basePrice}`;
 
-    if (priceDetails.hasVAT) {
-        priceHTML += ` + VAT ($${priceDetails.vatAmount})`;
-    }
-
     document.getElementById('summaryPrice').innerHTML = priceHTML;
     document.getElementById('summaryFinal').textContent = '$' + priceDetails.finalPrice;
 }
@@ -1884,18 +1821,6 @@ async function handlePayment() {
         }
         console.log('✓ Email OK');
 
-        // If invoice requested - check the fields
-        const wantInvoice = document.getElementById('wantInvoice').checked;
-        if (wantInvoice) {
-            const required = ['companyName', 'nip', 'street', 'city', 'postalCode'];
-            for (const fieldId of required) {
-                if (!document.getElementById(fieldId).value) {
-                    throw new Error('Please fill in all VAT invoice fields');
-                }
-            }
-            console.log('✓ Invoice fields OK');
-        }
-
         // Check the questions
         const service = servicesData[currentService];
         for (const q of service.questions) {
@@ -1909,7 +1834,7 @@ async function handlePayment() {
         // CRITICAL STEP: Calculate the final price
         const priceDetails = calculateFinalPrice();
 
-        // UPDATE elements with the final amount (in case discount/VAT changed)
+        // UPDATE elements with the final amount (in case discount changed)
         elements.update({
             amount: priceDetails.finalPrice * 100,
             currency: 'usd'
@@ -1919,7 +1844,6 @@ async function handlePayment() {
         console.log('=== CREATING PAYMENT INTENT ===');
         console.log('Amount:', priceDetails.finalPrice, 'USD');
         console.log('Base:', priceDetails.basePrice, 'USD');
-        console.log('VAT:', priceDetails.vatAmount, 'USD');
         console.log('Discount:', priceDetails.hasDiscount);
 
         // CREATE the payment intent with the final price
@@ -2027,7 +1951,6 @@ async function submitOrder(paymentIntentId) {
         price: priceDetails.finalPrice,
         originalPrice: selectedDelivery === 'standard' ? service.standardPrice : service.expressPrice,
         discountApplied: priceDetails.hasDiscount,
-        vatIncluded: priceDetails.hasVAT,
         paymentIntentId: paymentIntentId,
         personalInfo: {
             name: document.getElementById('fullName').value,
@@ -2042,9 +1965,7 @@ async function submitOrder(paymentIntentId) {
             street: document.getElementById('street').value || null,
             postalCode: document.getElementById('postalCode').value || null,
             city: document.getElementById('city').value || null,
-            wantInvoice: document.getElementById('wantInvoice').checked,
-            companyName: document.getElementById('companyName').value || null,
-            nip: document.getElementById('nip').value || null
+            taxId: document.getElementById('taxId').value || null
         },
         answers: {}
     };
