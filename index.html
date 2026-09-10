@@ -1,0 +1,2324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AstroFinance.Pro - Professional Business Astrology</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="visuals/logo.svg">
+    <link rel="alternate icon" href="visuals/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="visuals/apple-touch-icon.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Source+Sans+Pro:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://js.stripe.com/v3/"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --black: #0d0d0d;
+            --dark-gray: #1a1a1a;
+            --medium-gray: #2a2a2a;
+            --light-gray: #3a3a3a;
+            --text-gray: #b8b8b8;
+            --gold: #d4a574;
+            --white: #f5f5f5;
+        }
+
+        body {
+            font-family: 'Source Sans Pro', sans-serif;
+            background: var(--black);
+            color: var(--text-gray);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 40px;
+        }
+
+        .stars-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.8;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 0 3px rgba(255, 255, 255, 0.8), 0 0 6px rgba(212, 165, 116, 0.4);
+            animation: twinkle 3s infinite;
+        }
+        
+        .star.small { width: 1px; height: 1px; }
+        .star.medium { width: 2px; height: 2px; }
+        .star.large { width: 3px; height: 3px; }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.5); }
+        }
+
+        .constellation {
+            position: absolute;
+            background: linear-gradient(to bottom, rgba(212, 165, 116, 0.2), rgba(212, 165, 116, 0.05));
+            width: 1px;
+            transform-origin: top;
+            opacity: 0.6;
+        }
+        
+        .shooting-star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 0 10px 2px rgba(255, 255, 255, 0.8);
+            animation: shoot 3s linear infinite;
+        }
+        
+        @keyframes shoot {
+            0% { transform: translateX(0) translateY(0); opacity: 1; }
+            100% { transform: translateX(300px) translateY(300px); opacity: 0; }
+        }
+
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(13, 13, 13, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        nav .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--gold);
+            letter-spacing: 2px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 40px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-gray);
+            text-decoration: none;
+            font-weight: 400;
+            transition: color 0.3s;
+            font-size: 1rem;
+        }
+
+        .nav-links a:hover {
+            color: var(--gold);
+        }
+
+        .hero {
+            padding: 180px 0 80px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero .container {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 80px;
+            align-items: center;
+        }
+
+        .hero-content h1 {
+            font-family: 'Oswald', sans-serif;
+            font-size: 4rem;
+            font-weight: 700;
+            color: var(--white);
+            line-height: 1.1;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 30px;
+        }
+
+        .hero-content h1 span {
+            color: var(--gold);
+        }
+
+        .hero-content p {
+            font-size: 1.2rem;
+            color: var(--text-gray);
+            line-height: 1.8;
+        }
+
+        .hero-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+
+        .stat {
+            background: var(--dark-gray);
+            padding: 30px;
+            border: 2px solid var(--light-gray);
+            transition: all 0.3s;
+        }
+
+        .stat:hover {
+            border-color: var(--gold);
+            transform: translateY(-5px);
+        }
+
+        .stat-number {
+            font-family: 'Oswald', sans-serif;
+            font-size: 2.5rem;
+            color: var(--gold);
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: var(--text-gray);
+            font-size: 0.95rem;
+        }
+
+        .services {
+            padding: 100px 0;
+            position: relative;
+            z-index: 1;
+            background: var(--dark-gray);
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        .section-header h2 {
+            font-family: 'Oswald', sans-serif;
+            font-size: 3rem;
+            color: var(--white);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 20px;
+        }
+
+        .section-header p {
+            font-size: 1.1rem;
+            color: var(--text-gray);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 40px;
+        }
+
+        .service-card {
+            background: var(--medium-gray);
+            padding: 40px;
+            border: 2px solid var(--light-gray);
+            border-left: 5px solid transparent;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .service-card:hover {
+            border-left-color: var(--gold);
+            border-color: var(--gold);
+            transform: translateX(10px);
+        }
+
+        .service-card h3 {
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.8rem;
+            color: var(--white);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .service-card p {
+            color: var(--text-gray);
+            margin-bottom: 30px;
+            line-height: 1.8;
+        }
+
+        .service-price {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .price-option {
+            text-align: center;
+        }
+
+        .price-label {
+            font-size: 0.85rem;
+            color: var(--text-gray);
+            margin-bottom: 8px;
+        }
+
+        .price-value {
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.8rem;
+            color: var(--gold);
+            font-weight: 700;
+        }
+
+        .price-value small {
+            font-size: 1rem;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 18px;
+            background: var(--gold);
+            color: var(--black);
+            border: none;
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background: var(--white);
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .why-astro {
+            padding: 100px 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .why-astro h2 {
+            font-family: 'Oswald', sans-serif;
+            font-size: 3rem;
+            color: var(--white);
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 60px;
+        }
+
+        .why-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            margin-bottom: 60px;
+        }
+
+        .why-card {
+            background: var(--dark-gray);
+            padding: 40px;
+            border-left: 4px solid var(--gold);
+        }
+
+        .why-card h3 {
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.5rem;
+            color: var(--gold);
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .why-card p {
+            line-height: 1.8;
+        }
+
+        .about {
+            padding: 100px 0;
+            background: var(--dark-gray);
+            position: relative;
+            z-index: 1;
+        }
+
+        .about h2 {
+            font-family: 'Oswald', sans-serif;
+            font-size: 3rem;
+            color: var(--white);
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 60px;
+        }
+
+        .about-content {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .about-content p {
+            font-size: 1.1rem;
+            line-height: 1.9;
+            margin-bottom: 25px;
+        }
+
+        .signature {
+            text-align: right;
+            font-style: italic;
+            color: var(--gold);
+            margin-top: 40px;
+            font-size: 1.1rem;
+        }
+
+        footer {
+            padding: 60px 0;
+            background: var(--black);
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            border-top: 1px solid var(--light-gray);
+        }
+
+        footer a {
+            color: var(--text-gray);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        footer a:hover {
+            color: var(--gold);
+        }
+
+        .modal, .service-details-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 999;
+            overflow-y: auto;
+            padding: 40px 20px;
+        }
+
+        .modal.active, .service-details-modal.active {
+            display: block;
+        }
+
+        .modal-content, .service-details-content {
+            background: var(--dark-gray);
+            border: 3px solid var(--gold);
+            max-width: 900px;
+            width: 100%;
+            padding: 60px;
+            position: relative;
+            margin: 20px auto 40px;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 3rem;
+            color: var(--gold);
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .close-modal:hover {
+            color: var(--white);
+        }
+
+        .modal h2, .service-details-content h2 {
+            font-family: 'Oswald', sans-serif;
+            color: var(--gold);
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .modal h3, .service-details-content h3 {
+            font-family: 'Oswald', sans-serif;
+            color: var(--white);
+            font-size: 1.5rem;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+
+        .modal p, .service-details-content p, .modal ul, .service-details-content ul {
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        .modal ul, .service-details-content ul {
+            margin-left: 25px;
+        }
+
+        .delivery-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .delivery-option {
+            padding: 20px;
+            background: var(--medium-gray);
+            border: 2px solid var(--light-gray);
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .delivery-option.selected {
+            border-color: var(--gold);
+            background: var(--light-gray);
+        }
+
+        .delivery-option:hover {
+            border-color: var(--gold);
+        }
+
+        .delivery-label {
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.2rem;
+            color: var(--white);
+            margin-bottom: 10px;
+        }
+
+        .delivery-time {
+            color: var(--text-gray);
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        .delivery-price {
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.5rem;
+            color: var(--gold);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            color: var(--white);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 15px;
+            background: var(--medium-gray);
+            border: 2px solid var(--light-gray);
+            color: var(--white);
+            font-family: 'Source Sans Pro', sans-serif;
+            font-size: 1rem;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-group input:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: var(--gold);
+        }
+
+        .step {
+            display: none;
+        }
+
+        .step.active {
+            display: block;
+        }
+
+        .progress-steps {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .progress-step {
+            padding: 10px 20px;
+            background: var(--medium-gray);
+            color: var(--text-gray);
+            border: 2px solid var(--light-gray);
+            font-family: 'Oswald', sans-serif;
+            font-size: 0.9rem;
+        }
+
+        .progress-step.active {
+            background: var(--gold);
+            color: var(--black);
+            border-color: var(--gold);
+        }
+
+        .progress-step.completed {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+
+        #payment-element {
+            padding: 15px;
+            border: 1px solid var(--light-gray);
+            border-radius: 4px;
+            background: var(--dark-gray);
+        }
+
+        #card-errors {
+            color: #ff6b6b;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+
+        .success-message {
+            display: none;
+            text-align: center;
+            padding: 60px;
+        }
+
+        .success-message.active {
+            display: block;
+        }
+
+        .success-icon {
+            font-size: 5rem;
+            color: var(--gold);
+            margin-bottom: 30px;
+        }
+
+        .success-message h3 {
+            font-family: 'Oswald', sans-serif;
+            font-size: 2.5rem;
+            color: var(--gold);
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 1024px) {
+            .hero .container {
+                grid-template-columns: 1fr;
+                gap: 60px;
+            }
+
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-links {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-content h1 {
+                font-size: 3rem;
+            }
+            
+            .delivery-options {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-content, .service-details-content {
+                padding: 30px;
+            }
+
+            .progress-steps {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars-container" id="starsContainer"></div>
+
+    <nav>
+        <div class="container">
+            <div class="logo">
+                <img src="visuals/logo.svg" alt="AstroFinance" style="height: 40px; vertical-align: middle; margin-right: 15px;">
+                ASTROFINANCE.PRO
+            </div>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#services">Services</a></li>
+                <li><a href="#why">Why Astrology?</a></li>
+                <li><a href="#about">About Us</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="hero" id="home">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Strategic decisions<br>at the <span>optimal</span> moment</h1>
+                <p>Professional business astrology for people who don't leave success to chance. Concrete dates, precise analysis, measurable results in your career and life.</p>
+            </div>
+            <div class="hero-stats">
+                <div class="stat">
+                    <div class="stat-number">24H</div>
+                    <div class="stat-label">Standard Delivery</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">2H</div>
+                    <div class="stat-label">Express Option</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">$99</div>
+                    <div class="stat-label">Average Investment</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="services" id="services">
+        <div class="container">
+            <div class="section-header">
+                <h2>Our Services</h2>
+                <p>Every analysis is precisely tailored to your birth date and the current planetary constellations</p>
+            </div>
+
+            <div class="services-grid">
+                <div class="service-card" onclick="showServiceDetails('career')">
+                    <h3>Career & Advancement</h3>
+                    <p>Strategic timing for key career decisions.</p>
+                    <div class="service-price">
+                        <div class="price-option">
+                            <div class="price-label">Standard (24h)</div>
+                            <div class="price-value"><small>$</small>79</div>
+                        </div>
+                        <div class="price-option">
+                            <div class="price-label">Express (2h)</div>
+                            <div class="price-value"><small>$</small>99</div>
+                        </div>
+                    </div>
+                    <button class="btn" onclick="event.stopPropagation(); showServiceDetails('career')">See Details</button>
+                </div>
+
+                <div class="service-card" onclick="showServiceDetails('startup')">
+                    <h3>Startup & Business</h3>
+                    <p>Optimal timing for launching and growing your business venture.</p>
+                    <div class="service-price">
+                        <div class="price-option">
+                            <div class="price-label">Standard (24h)</div>
+                            <div class="price-value"><small>$</small>129</div>
+                        </div>
+                        <div class="price-option">
+                            <div class="price-label">Express (2h)</div>
+                            <div class="price-value"><small>$</small>169</div>
+                        </div>
+                    </div>
+                    <button class="btn" onclick="event.stopPropagation(); showServiceDetails('startup')">See Details</button>
+                </div>
+
+                <div class="service-card" onclick="showServiceDetails('investments')">
+                    <h3>Finance & Investments</h3>
+                    <p>Optimal timing windows for investment and financial decisions.</p>
+                    <div class="service-price">
+                        <div class="price-option">
+                            <div class="price-label">Standard (24h)</div>
+                            <div class="price-value"><small>$</small>105</div>
+                        </div>
+                        <div class="price-option">
+                            <div class="price-label">Express (2h)</div>
+                            <div class="price-value"><small>$</small>129</div>
+                        </div>
+                    </div>
+                    <button class="btn" onclick="event.stopPropagation(); showServiceDetails('investments')">See Details</button>
+                </div>
+
+                <div class="service-card" onclick="showServiceDetails('leadership')">
+                    <h3>Leadership & Management</h3>
+                    <p>Timing for personnel decisions and strategic organizational change.</p>
+                    <div class="service-price">
+                        <div class="price-option">
+                            <div class="price-label">Standard (24h)</div>
+                            <div class="price-value"><small>$</small>95</div>
+                        </div>
+                        <div class="price-option">
+                            <div class="price-label">Express (2h)</div>
+                            <div class="price-value"><small>$</small>119</div>
+                        </div>
+                    </div>
+                    <button class="btn" onclick="event.stopPropagation(); showServiceDetails('leadership')">See Details</button>
+                </div>
+
+                <div class="service-card" onclick="showServiceDetails('mission')">
+                    <h3>Mission & Purpose</h3>
+                    <p>Discover your life's calling and the optimal path for professional growth.</p>
+                    <div class="service-price">
+                        <div class="price-option">
+                            <div class="price-label">Standard (24h)</div>
+                            <div class="price-value"><small>$</small>79</div>
+                        </div>
+                        <div class="price-option">
+                            <div class="price-label">Express (2h)</div>
+                            <div class="price-value"><small>$</small>99</div>
+                        </div>
+                    </div>
+                    <button class="btn" onclick="event.stopPropagation(); showServiceDetails('mission')">See Details</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="why-astro" id="why">
+        <div class="container">
+            <h2>Why Astrology in Business?</h2>
+
+            <div class="why-content">
+                <div class="why-card">
+                    <h3>Timing Is Everything</h3>
+                    <p>In business, the moment a decision is made often matters more than the decision itself. Astrology provides precise dates when cosmic energy supports your actions — whether that's negotiations, signing contracts, or launching a new venture.</p>
+                </div>
+
+                <div class="why-card">
+                    <h3>Self-Knowledge = Advantage</h3>
+                    <p>Knowing your natural predispositions as written in the stars lets you maximize your strengths and consciously manage your weaker areas. It's like having an owner's manual for yourself in a business context.</p>
+                </div>
+
+                <div class="why-card">
+                    <h3>Risk Management</h3>
+                    <p>Planetary cycles point to periods of expansion and consolidation. Knowing them lets you make bold moves at the right time and stay cautious when the stars warn against impulsive decisions.</p>
+                </div>
+            </div>
+
+            <div class="why-card" style="max-width: 900px; margin: 0 auto;">
+                <h3>From Antiquity to Wall Street</h3>
+                <p>Astrology is nothing new in the world of business. J.P. Morgan was famous for saying, "Millionaires don't use astrology, billionaires do." Great business leaders have used astrological insight for centuries as an additional tool for strategic decision-making. It doesn't replace business analysis — it complements it with a dimension of timing and energy that traditional methods can't capture.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="about" id="about">
+        <div class="container">
+            <h2>About Us</h2>
+            <div class="about-content">
+                <p>We're a group of people who have found — and continue to find — success in our respective fields, from technology to finance to management. Each of us understands professional pressure, the pace of fast-growing projects, and the difficulty of decisions: now or later, yes or no.</p>
+
+                <p>Astrology entered our lives as a curiosity, a hobby, a way to step back from the everyday. We quickly discovered it was something more — a tool for reflection that helps us pause and ask ourselves: where am I actually heading?</p>
+
+                <p>We don't look to the stars for an oracle. We look for a moment to rethink strategy, widen our perspective, and view our goals with some distance. It works — our decisions become more considered, our timing better, our direction clearer.</p>
+
+                <p>Over time, our hobby became a profession. We combined business experience with astrological knowledge and created AstroFinance.Pro — a place where other leaders and entrepreneurs can find the same thing we did: a moment to pause, reflect, and get real support in building a deliberate strategy aimed at success.</p>
+
+                <p>The stars lead. We help you read them.</p>
+
+                <div class="signature">
+                    - The Founders of AstroFinance.Pro
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <img src="visuals/logo.svg" alt="AstroFinance" style="height: 50px; margin-bottom: 20px; opacity: 0.6;">
+            <p style="font-size: 1.1rem; margin-bottom: 20px;">© 2026 AstroFinance.Pro - All rights reserved</p>
+            <p style="opacity: 0.6; font-size: 0.9rem; margin-bottom: 20px;">Professional business astrology | Advanced AI-powered analysis</p>
+
+            <div style="margin-top: 30px; padding-top: 30px; border-top: 1px solid var(--light-gray);">
+                <a href="privacy.html" target="_blank">Privacy Policy</a>
+                <span style="color: var(--light-gray);">|</span>
+                <a href="terms.html" target="_blank">Terms of Service</a>
+                <span style="color: var(--light-gray);">|</span>
+                <a href="mailto:contact@astrofinance.pro" style="color: var(--text-gray);">Contact</a>
+            </div>
+
+            <p style="margin-top: 30px; font-size: 0.85rem; opacity: 0.5;">
+                Services provided by: Grammar Queen | Tax ID (NIP): 5272582504
+            </p>
+        </div>
+    </footer>
+
+    <!-- Service Details Modal -->
+    <div class="service-details-modal" id="serviceDetailsModal">
+        <div class="service-details-content">
+            <span class="close-modal" onclick="closeServiceDetails()">×</span>
+            <div id="serviceDetailsContent"></div>
+            <button class="btn" onclick="startOrder()" style="margin-top: 40px;">Place Order</button>
+        </div>
+    </div>
+
+    <!-- Order Modal with 3 steps -->
+    <div class="modal" id="orderModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">×</span>
+            
+            <div class="progress-steps">
+                <div class="progress-step" id="step1Indicator" onclick="goToStep(1)" style="cursor: pointer;">1. Delivery Options</div>
+                <div class="progress-step" id="step2Indicator" onclick="goToStep(2)" style="cursor: pointer;">2. Your Info</div>
+                <div class="progress-step" id="step3Indicator" onclick="goToStep(3)" style="cursor: pointer;">3. Payment</div>
+            </div>
+
+            <!-- Step 1: Delivery Selection -->
+            <div class="step active" id="step1">
+                <h2 id="modalTitle">Order Your Analysis</h2>
+                <h3>Choose a delivery option</h3>
+                <div class="delivery-options">
+                    <div class="delivery-option selected" onclick="selectDelivery('standard')">
+                        <div class="delivery-label">Standard</div>
+                        <div class="delivery-time">Delivered within 24 hours</div>
+                        <div class="delivery-price" id="standardPrice">$79</div>
+                    </div>
+                    <div class="delivery-option" onclick="selectDelivery('express')">
+                        <div class="delivery-label">Express</div>
+                        <div class="delivery-time">Delivered within 2 hours</div>
+                        <div class="delivery-price" id="expressPrice">$99</div>
+                    </div>
+                </div>
+                <button class="btn" onclick="nextStep(2)">Next</button>
+            </div>
+
+            <!-- Step 2: Form -->
+            <div class="step" id="step2">
+                <h2>Your Details & Questions</h2>
+                <form id="analysisForm" onsubmit="return false;">
+                    <div class="form-group">
+                        <label>Full Name *</label>
+                        <input type="text" id="fullName" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="pronounsSelect">Pronouns *</label>
+                        <select id="pronounsSelect" required onchange="toggleCustomPronouns()">
+                            <option value="on">he/him</option>
+                            <option value="ona">she/her</option>
+                            <option value="custom">other</option>
+                        </select>
+                        <input
+                            type="text"
+                            id="customPronouns"
+                            placeholder="e.g. they/them, prefer not to say"
+                            maxlength="50"
+                            style="margin-top: 10px; display: none;"
+                        >
+                        <div style="text-align: right; font-size: 0.85rem; color: var(--text-gray); margin-top: 5px; display: none;" id="pronouns-count-container">
+                            <span id="pronouns-count">0</span> / 50 characters
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Email *</label>
+                        <input type="email" id="email" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Date of Birth *</label>
+                        <input type="date" id="birthDate" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Time of Birth (optional)</label>
+                        <input type="time" id="birthTime">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Place of Birth *</label>
+                        <input type="text" id="birthPlace" required placeholder="e.g. New York, USA">
+                    </div>
+
+                    <div id="serviceQuestions"></div>
+
+                    <button type="button" class="btn" onclick="nextStep(3)" style="margin-top: 20px;">Continue to Payment</button>
+                </form>
+            </div>
+
+            <!-- Step 3: Payment -->
+            <div class="step" id="step3">
+                <h2>Payment</h2>
+
+<h3>Billing Details</h3>
+
+<!-- TODO: confirm tax treatment for international customers with accountant -->
+<div class="form-group">
+    <label style="display: flex; align-items: center; cursor: pointer;">
+        <input type="checkbox" id="wantInvoice" onchange="toggleInvoiceFields()" style="width: auto; margin-right: 10px;">
+        I need a VAT invoice
+    </label>
+</div>
+
+<div id="invoiceFields" style="display: none;">
+    <div class="form-group">
+        <label>Company Name *</label>
+        <input type="text" id="companyName" placeholder="Company Name LLC">
+    </div>
+
+    <div class="form-group">
+        <label>Tax ID *</label>
+        <input type="text" id="nip" placeholder="1234567890">
+    </div>
+</div>
+
+<div class="form-group">
+    <label>Full Name *</label>
+    <input type="text" id="billingName" required>
+</div>
+
+<div id="addressFields">
+    <div class="form-group">
+        <label>Address (street, house number, apartment number)</label>
+        <input type="text" id="street" placeholder="123 Main St, Apt 5">
+    </div>
+
+    <div class="form-group" style="display: grid; grid-template-columns: 1fr 2fr; gap: 15px;">
+        <div>
+            <label>ZIP / Postal Code</label>
+            <input type="text" id="postalCode" placeholder="00000">
+        </div>
+        <div>
+            <label>City</label>
+            <input type="text" id="city" placeholder="New York">
+        </div>
+    </div>
+</div>
+
+<h3 style="margin-top: 40px;">Card Details</h3>
+
+<div style="background: var(--medium-gray); padding: 20px; margin-bottom: 20px; border-left: 3px solid #635bff;">
+    <p style="margin: 0; display: flex; align-items: center; gap: 10px; font-size: 0.95rem;">
+        🔒 <strong style="color: #635bff;">Secured by Stripe</strong> - Your data is encrypted and secure
+    </p>
+    <p style="margin: 10px 0 0 0; font-size: 0.85rem; opacity: 0.8;">
+        We never store your card details. All payments are processed by Stripe - a global leader in secure online payments.
+    </p>
+</div>
+
+<!-- Stripe Card Element -->
+ 
+<div id="payment-element"></div>
+<div id="card-errors" role="alert"></div>
+
+<div style="margin-top: 20px; text-align: center;">
+    <iframe width="380" height="38" style="border:0;" src="https://climate.stripe.com/badge/AYJMQo?theme=dark&size=small&locale=en-GB"></iframe>
+</div>
+
+<!-- Discount Code -->
+<div style="margin-bottom: 20px;">
+    <label style="display: block; margin-bottom: 5px; color: #b8b8b8;">
+        Discount Code (optional)
+    </label>
+    <div style="display: flex; gap: 10px;">
+        <input
+            type="text"
+            id="discountCode"
+            placeholder="Enter discount code"
+            style="flex: 1; padding: 12px; background: #2a2a2a; border: 1px solid #3a3a3a; border-radius: 8px; color: #f5f5f5;"
+        >
+        <button
+            type="button"
+            onclick="applyDiscountCode()"
+            style="padding: 12px 24px; background: #d4a574; color: #0d0d0d; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; white-space: nowrap;"
+        >
+            Apply
+        </button>
+    </div>
+    <div id="discountMessage" style="margin-top: 8px; font-size: 14px;"></div>
+</div>
+
+<!-- Summary Box - BEFORE the payment button -->
+<div style="background: var(--medium-gray); padding: 20px; margin: 30px 0 20px 0; border-left: 4px solid var(--gold);">
+    <h3 style="margin: 0 0 15px 0; font-size: 1.3rem;">Order Summary</h3>
+    <p style="margin: 5px 0;"><strong>Service:</strong> <span id="summaryService"></span></p>
+    <p style="margin: 5px 0;"><strong>Delivery:</strong> <span id="summaryDelivery"></span></p>
+    <p style="margin: 5px 0;"><strong>Price:</strong> <span id="summaryPrice"></span></p>
+    <p style="font-size: 1.4rem; color: var(--gold); margin: 15px 0 0 0; padding-top: 15px; border-top: 1px solid var(--light-gray);"><strong>Total: <span id="summaryFinal"></span></strong></p>
+</div>
+
+                <!-- Terms acceptance -->
+                <div style="margin-top: 30px; padding: 20px; background: var(--medium-gray); border-left: 3px solid var(--gold);">
+                    <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; font-size: 0.95rem;">
+                        <input
+                            type="checkbox"
+                            id="acceptTerms"
+                            required
+                            style="margin-top: 4px; width: 18px; height: 18px; cursor: pointer; flex-shrink: 0;"
+                        >
+                        <span>
+                            I accept the <a href="terms.html" target="_blank" style="color: var(--gold); text-decoration: underline;">Terms of Service</a>
+                            and <a href="privacy.html" target="_blank" style="color: var(--gold); text-decoration: underline;">Privacy Policy</a>,
+                            and I consent to the processing of my personal data for the purpose of fulfilling this order. *
+                        </span>
+                    </label>
+                </div>
+
+                <button id="submit-payment" class="btn" style="margin-top: 30px;">
+                    <span id="button-text">Pay & Place Order</span>
+                    <span id="spinner" style="display: none;">⏳ Processing...</span>
+                </button>
+            </div>
+
+            <!-- Success Message -->
+            <div class="success-message" id="successMessage">
+                <div class="success-icon">✓</div>
+                <h3>PAYMENT SUCCESSFUL</h3>
+                <p>Your order has been registered under number <strong id="orderNumber"></strong>.</p>
+                <p style="margin-top: 20px;">You'll receive a confirmation email shortly at: <strong id="confirmEmail"></strong></p>
+                <p style="margin-top: 20px; color: var(--gold); font-size: 1.3rem;">
+                    <strong>Delivery: <span id="deliveryInfo"></span></strong>
+                </p>
+                <p style="margin-top: 30px; opacity: 0.8;">
+                    Your detailed astrological analysis will be prepared by our experts and sent to the email address provided, within the promised timeframe.
+                </p>
+                <button class="btn" onclick="closeModal()" style="max-width: 300px; margin: 40px auto 0;">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+// TODO: update to the real AstroFinance backend URL once the new Railway service is deployed
+const API_URL = 'https://astrofinance-pro-production.up.railway.app/api';
+const STRIPE_KEY = 'pk_live_51So0sBEr4XypIDmPLIeH3SMrK0afzlS5fImkXMm9TLrzI9l6I2xxmfRIvx9CLDauW0eB7pClbb2EDIiEfEpTnQLN002USmcoMG';
+
+const stripe = Stripe(STRIPE_KEY);
+let clientSecret;
+let elements;
+
+const servicesData = {
+career: {
+    title: 'Career & Advancement',
+    standardPrice: 79,
+    expressPrice: 99,
+    detailedDescription: {
+        main: `A professional astrological analysis of your career situation that pinpoints the best moments for key conversations, negotiations, and career decisions.
+
+We combine classical astrology with practical business experience — you get more than generalities: concrete action dates, a strategy built on your natural predispositions, and a map of challenges and opportunities for the coming months.`,
+        forWhom: `WHO THIS HELPS:
+• You're negotiating a raise or promotion — find out when your negotiating position will be strongest and how to use it
+• You're considering a job or industry change — get timing for your moves (when to send your resume, when to talk to recruiters, when to sign the contract) and an assessment of whether now is the right moment
+• You're focused on growth at your current company — see the windows for building skills, building relationships with key people, and increasing your visibility
+• You're heading into important business negotiations — get a strategy for when to negotiate, what to avoid, and what to push for
+• You feel stuck — the analysis will reveal your untapped strengths and growth directions aligned with your natural predispositions`,
+
+        whatYouGet: `WHAT YOU GET, EXACTLY (2,500-3,000 words):
+I. PROFESSIONAL PROFILE
+Your natural strengths in a career context (what you do best), areas for growth, and your optimal working style and environment — all based on the planetary positions in your birth chart.
+
+II. SITUATION ANALYSIS
+An assessment of your current situation through the lens of current planetary transits. Probability of success for your planned moves (with reasoning), and a map of risks — both internal and external.
+
+III. STRATEGIC TIMING
+Concrete dates (format: DD-DD Month YYYY) for key actions:
+• The optimal window for a raise/promotion conversation
+• When to send your resume / talk to recruiters
+• The best moments for networking and relationship-building
+• Caution periods (avoid major decisions)
+• The strongest growth window of the year
+
+IV. ACTION PLAN
+• 30-day actions (with concrete dates)
+• 90-day strategy (with astrological windows)
+• 6-12 month plan (long-term transits)
+
+V. RECOMMENDATIONS
+Your 3 top-priority actions (with astrological, business, and timing rationale), what to stop doing (what's blocking your growth), and who to bring in (types of mentors/supporters).`,
+
+        keyPoints: `IN SHORT — YOU GET:
+• Concrete dates for optimal actions (not "soon," but "March 15-20, 2026")
+• Probability of success in % (with reasoning)
+• A 3-stage action plan (30/90/180 days)
+• An analysis of your professional strengths
+• A risk map and how to avoid those risks
+• PDF format, 2,500-3,000 words, password-protected`,
+
+        format: `DELIVERY: Standard 24h | Express 2h | Format: Password-protected PDF`
+    },
+    questions: [
+        { id: 'q1', label: 'What is your current professional situation? (position, industry, tenure)', type: 'textarea' },
+        { id: 'q2', label: 'What specific goal do you want to achieve? (X% raise, promotion to role Y, company change)', type: 'textarea' },
+        { id: 'q3', label: 'What is your timeframe? (3 months, 6 months, 12 months)', type: 'text' },
+        { id: 'q4', label: 'What are the main obstacles you see? (lack of experience, competition, situation at your company)', type: 'textarea' },
+        { id: 'q5', label: 'Do you already have concrete actions planned? (a conversation scheduled, resume sent, etc.)', type: 'textarea' }
+    ]
+},
+startup: {
+    title: 'Startup & Business',
+    standardPrice: 129,
+    expressPrice: 169,
+    detailedDescription: {
+        main: `An astrological analysis of business strategy for startup founders and business owners. You get timing for the key business decisions: when to launch a product, when to talk to investors, when to scale the team, when to pivot.
+
+We combine astrological insight with hands-on experience building businesses — you won't get generalities about "positive energy," but concrete action dates and a strategy tailored to your business's real challenges.`,
+
+        forWhom: `WHO THIS HELPS:
+• You're planning to launch a startup or new product — get the optimal launch window, a pre-launch and post-launch strategy, and timing for key announcements
+• You're seeking investors or planning a funding round — see when your negotiating position will be strongest, how to prepare, and what to avoid in conversations
+• You're considering a pivot or business model change — get an assessment of whether now is the right time, a transition plan, and timing for communicating with stakeholders
+• You're scaling your team or entering a new market — find out when to hire, when to expand, when to consolidate resources
+• You're facing a tough business decision (sale, wind-down, partnership) — the analysis will show optimal timing and an exit or entry strategy`,
+
+        whatYouGet: `WHAT YOU GET, EXACTLY (3,000-3,500 words):
+I. FOUNDER PROFILE
+Your natural strengths in business (your superpower), risk areas (where you lose energy or make mistakes), and the business model that fits your nature (solo founder, co-founder, team player).
+
+II. PROJECT ANALYSIS
+An assessment of your project's potential through the lens of planetary transits. Probability of success as a percentage (with astrological and business reasoning), a map of external and internal risks, and the strongest and weakest periods of the year.
+
+III. STRATEGIC TIMING
+Concrete dates for key actions:
+• The optimal product launch window (format: DD-DD Month YYYY)
+• When to talk to investors / sign a term sheet
+• The best moments to hire key people
+• When to announce changes / a pivot / rebranding
+• Caution periods (don't sign contracts, don't make changes)
+• The strongest growth window of the year
+
+IV. ACTION PLAN
+• 60-day actions (quick wins with dates)
+• 6-month strategy (with astrological windows)
+• Annual plan (key milestones and timing)
+
+V. STRATEGIC RECOMMENDATIONS
+Your 3 top business priorities (with reasoning and timing), what to stop doing (energy-draining activities with no results), and who to bring in (types of mentors, advisors, partners).`,
+
+        keyPoints: `IN SHORT — YOU GET:
+• Concrete dates for launch, fundraising, hiring (not "soon," but "April 1-7, 2026")
+• Probability of project success in % (with reasoning)
+• A 60/180/360-day plan with astrological windows
+• An analysis of your strengths as a founder
+• A business risk map and how to avoid those risks
+• Strategic recommendations aligned with the transits
+• PDF format, 3,000-3,500 words, password-protected`,
+
+        format: `DELIVERY: Standard 24h | Express 2h | Format: Password-protected PDF`
+    },
+    questions: [
+        { id: 'q1', label: 'Describe your project/business (industry, stage, business model)', type: 'textarea' },
+        { id: 'q2', label: 'What specific goal do you want to achieve? (launch, funding, pivot, scaling)', type: 'textarea' },
+        { id: 'q3', label: 'What stage are you at? (pre-launch, growth, plateau, crisis)', type: 'text' },
+        { id: 'q4', label: 'What are the main challenges you see? (market fit, funding, team, competition)', type: 'textarea' },
+        { id: 'q5', label: 'What resources do you have? (team size, runway, traction, partnerships)', type: 'textarea' }
+    ]
+},
+investments: {
+    title: 'Finance & Investments',
+    standardPrice: 105,
+    expressPrice: 129,
+    detailedDescription: {
+        main: `An astrological analysis of your personal finances and investment decisions. Timing for the key capital moves: when to invest, when to wait, when to sell assets, when to negotiate a big purchase or a loan.
+
+We don't talk about "money energy." We talk about concrete transaction dates, the probability of investment success, and portfolio management strategy based on your predispositions and the current planetary transits.`,
+
+        forWhom: `WHO THIS HELPS:
+• You're planning a major investment (real estate, stocks, crypto, a business) — get a timing assessment, probability of success, and caution points
+• You manage an investment portfolio — see the optimal windows for entries and exits, when to increase exposure, when to reduce risk
+• You're considering a major purchase or loan (a home, a car, education) — get timing for negotiations, signing the agreement, and the best financial terms
+• You're facing a financial decision (selling assets, restructuring debt, changing strategy) — the analysis will show the optimal moments and a plan of action
+• You want to optimize your personal finances — learn about your natural predispositions for managing money, your risk areas, and your optimal strategy`,
+
+        whatYouGet: `WHAT YOU GET, EXACTLY (2,000-2,500 words):
+I. FINANCIAL PROFILE
+Your natural approach to money (conservative, aggressive, balanced), your strengths in financial management, risk areas (where you lose money), and the investment strategy that fits your nature.
+
+II. SITUATION ANALYSIS
+An assessment of your current financial situation through the lens of the transits. Probability of success for planned investments as a percentage (with reasoning), a financial risk map, and periods of heightened caution.
+
+III. TRANSACTION TIMING
+Concrete dates for key actions:
+• The optimal window for major investments (format: DD-DD Month YYYY)
+• When to buy assets / when to sell
+• The best moments to negotiate loans and credit
+• When to sign financial agreements
+• High-risk periods (avoid major decisions)
+• The strongest financial growth window of the year
+
+IV. PORTFOLIO STRATEGY
+• Asset allocation aligned with your transits
+• A rebalancing timeline (when to increase/decrease exposure)
+• Exit strategy (when to take profits)
+
+V. FINANCIAL PLAN
+90-day actions (concrete steps with dates), a 6-12 month strategy (with astrological windows), and a long-term financial vision (3-5 years).`,
+
+        keyPoints: `IN SHORT — YOU GET:
+• Concrete dates for optimal transactions (not "soon," but "May 10-15, 2026")
+• Probability of investment success in % (with reasoning)
+• A 90/180/360-day plan for your finances
+• An analysis of your financial profile
+• A risk map and how to avoid those risks
+• A portfolio strategy aligned with the transits
+• PDF format, 2,000-2,500 words, password-protected`,
+
+        format: `DELIVERY: Standard 24h | Express 2h | Format: Password-protected PDF`
+    },
+    questions: [
+        { id: 'q1', label: 'What is your financial situation? (income, savings, investments)', type: 'textarea' },
+        { id: 'q2', label: 'What specific goal do you want to achieve? (investment X, purchase Y, growing your portfolio by Z%)', type: 'textarea' },
+        { id: 'q3', label: 'What is your time horizon? (3 months, 6 months, 12 months, 3 years)', type: 'text' },
+        { id: 'q4', label: 'What are the main risks you see? (market volatility, lack of capital, an investment decision)', type: 'textarea' },
+        { id: 'q5', label: 'What is your risk profile? (conservative, moderate, aggressive)', type: 'text' }
+    ]
+},
+leadership: {
+    title: 'Leadership & Management',
+    standardPrice: 95,
+    expressPrice: 119,
+    detailedDescription: {
+        main: `An astrological analysis of your leadership competencies and team management strategy. Timing for the key HR decisions: when to hire, when to let someone go, when to make changes, when to delegate, when to take control.
+
+We don't talk about "leadership energy." You get concrete recommendations for how to use your natural strengths in leadership, how to manage through difficult moments, and when to make key team decisions.`,
+
+        forWhom: `WHO THIS HELPS:
+• You manage a team or department — get a strategy for boosting effectiveness, when to make changes, and how to manage conflicts
+• You're planning major team changes (restructuring, hiring, layoffs) — get timing, a communication plan, and a strategy for minimizing risk
+• You want to improve your leadership skills — see your natural strengths, areas for growth, and your optimal management style
+• You're facing a tough HR decision (promoting a team member, letting go of a key person, a conflict) — the analysis will show the best timing and strategy
+• You're building a new team or department — find out when to hire, which personality profiles will fit, and how to build culture`,
+
+        whatYouGet: `WHAT YOU GET, EXACTLY (2,000-2,500 words):
+I. LEADER PROFILE
+Your natural leadership style (autocratic, democratic, transformational, coaching), your strengths in managing people, risk areas (what drains you, where you lose authority), and the management model that fits your nature.
+
+II. TEAM ANALYSIS
+An assessment of team dynamics through the lens of the transits. Probability of success for planned changes as a percentage (with reasoning), a map of potential conflicts, and periods of high or low motivation.
+
+III. HR DECISION TIMING
+Concrete dates for key actions:
+• The optimal window to hire key people
+• When to make organizational changes
+• The best moments for difficult conversations (performance reviews, layoffs)
+• When to delegate, when to take control
+• Caution periods (avoid major team changes)
+• The strongest window for team building and culture development
+
+IV. MANAGEMENT STRATEGY
+• How to use your strengths as a leader
+• A leadership development plan (with specifics)
+• Strategies for conflicts and difficult conversations
+
+V. TEAM DEVELOPMENT PLAN
+60-day actions (quick management wins), a 6-month strategy (building culture and processes), and an annual plan (team development and your own growth as a leader).`,
+
+        keyPoints: `IN SHORT — YOU GET:
+• Concrete dates for optimal HR decisions (not "soon," but "June 5-10, 2026")
+• Probability of success for changes in % (with reasoning)
+• A 60/180/360-day plan for team development
+• An analysis of your leadership style
+• A management risk map and how to avoid those risks
+• A strategy aligned with your natural predispositions
+• PDF format, 2,000-2,500 words, password-protected`,
+
+        format: `DELIVERY: Standard 24h | Express 2h | Format: Password-protected PDF`
+    },
+    questions: [
+        { id: 'q1', label: 'What is your role? (manager, director, founder, team lead)', type: 'text' },
+        { id: 'q2', label: 'Describe your team (size, structure, dynamics, challenges)', type: 'textarea' },
+        { id: 'q3', label: 'What specific goal do you want to achieve? (team development, culture change, hiring, reorganization)', type: 'textarea' },
+        { id: 'q4', label: 'What are the main challenges you see? (conflicts, motivation, performance, retention)', type: 'textarea' },
+        { id: 'q5', label: 'What do you want to improve about your management style?', type: 'textarea' }
+    ]
+},
+mission: {
+    title: 'Mission & Purpose',
+    standardPrice: 79,
+    expressPrice: 99,
+    detailedDescription: {
+        main: `A deep astrological analysis of your life mission and professional calling. This isn't a standard career analysis — it's an exploration of your unique potential, natural talents, and the direction of growth aligned with your inner nature.
+
+You get a map of your life potential, concrete directions for professional and personal growth, and a plan for moving closer to a life aligned with who you truly are. No esoteric fluff — full respect for your real goals and aspirations.`,
+
+        forWhom: `WHO THIS HELPS:
+• You feel your current job isn't fulfilling — see where your true potential lies and which career paths would fit your nature
+• You're considering a total career change — get an assessment of different paths, probability of success, and timing for the change
+• You're searching for your life mission or a deeper sense of purpose at work — the analysis will show your unique talents and how to use them in your career
+• You've achieved professional success but feel empty — find out what would bring you deeper fulfillment and how to integrate it into your current life
+• You're at a crossroads and don't know which path to choose — see your natural predispositions, your potential across different areas, and a long-term vision`,
+
+        whatYouGet: `WHAT YOU GET, EXACTLY (3,500-4,000 words):
+I. POTENTIAL MAP
+Your unique talents and predispositions (what you do best, what others don't see in you), areas of untapped potential, natural interests and passions aligned with your planetary positions, and your optimal work environment and lifestyle.
+
+II. CALLING ANALYSIS
+Your life mission through the lens of astrology (your unique contribution), the areas where you can have the greatest impact, internal barriers (what's blocking you from realizing your full potential), and a path for spiritual and professional growth.
+
+III. DIRECTIONS FOR GROWTH
+Concrete professions and roles aligned with your nature (with astrological reasoning), industries and environments where you'll thrive, projects and activities that will bring you fulfillment, and what to avoid (what drains your energy without results).
+
+IV. TRANSFORMATION PLAN
+• Phase 1 (6 months): Exploration and testing (concrete actions)
+• Phase 2 (12 months): Building a new path (with timing)
+• Phase 3 (3 years): Full transformation (long-term vision)
+
+V. TIMING FOR CHANGE
+Optimal windows for key life decisions (when to start learning something new, when to change jobs, when to launch a project), periods of intense growth and development, and moments for reflection and consolidation.`,
+
+        keyPoints: `IN SHORT — YOU GET:
+• A map of your unique potential and talents
+• Concrete directions for professional growth (industries, roles, projects)
+• A 6/12/36-month transformation plan (with astrological timing)
+• An analysis of your life mission and calling
+• Internal barriers and how to overcome them
+• A long-term vision of a life aligned with your nature
+• PDF format, 3,500-4,000 words, password-protected`,
+
+        format: `DELIVERY: Standard 24h | Express 2h | Format: Password-protected PDF`
+    },
+    questions: [
+        { id: 'q1', label: 'Describe your current life and professional situation', type: 'textarea' },
+        { id: 'q2', label: 'What gives you the greatest fulfillment in life? What makes you feel truly alive?', type: 'textarea' },
+        { id: 'q3', label: 'What do you feel is missing? What do you long for deep down?', type: 'textarea' },
+        { id: 'q4', label: 'What talents do you have that aren\\'t fully used?', type: 'textarea' },
+        { id: 'q5', label: 'If you could start over, what would you do differently?', type: 'textarea' }
+    ]
+}
+};
+
+let currentService = null;
+let selectedDelivery = 'standard';
+let currentStep = 1;
+
+function createStars() {
+    const container = document.getElementById('starsContainer');
+    const numberOfStars = 200;
+    
+    for (let i = 0; i < numberOfStars; i++) {
+        const star = document.createElement('div');
+        star.className = 'star';
+        
+        const size = Math.random();
+        if (size > 0.85) {
+            star.classList.add('large');
+        } else if (size > 0.5) {
+            star.classList.add('medium');
+        } else {
+            star.classList.add('small');
+        }
+        
+        star.style.left = Math.random() * 100 + '%';
+        star.style.top = Math.random() * 100 + '%';
+        star.style.animationDelay = Math.random() * 3 + 's';
+        star.style.animationDuration = (2 + Math.random() * 2) + 's';
+        
+        container.appendChild(star);
+    }
+    
+    createConstellationLines(container);
+    createShootingStars(container);
+}
+
+function createConstellationLines(container) {
+    const stars = container.querySelectorAll('.star');
+    const constellations = 5;
+    
+    for (let i = 0; i < constellations; i++) {
+        const star1 = stars[Math.floor(Math.random() * stars.length)];
+        const star2 = stars[Math.floor(Math.random() * stars.length)];
+        
+        if (star1 && star2) {
+            const line = document.createElement('div');
+            line.className = 'constellation';
+            
+            const x1 = parseFloat(star1.style.left);
+            const y1 = parseFloat(star1.style.top);
+            const x2 = parseFloat(star2.style.left);
+            const y2 = parseFloat(star2.style.top);
+            
+            const length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+            const angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+            
+            if (length < 15) {
+                line.style.left = x1 + '%';
+                line.style.top = y1 + '%';
+                line.style.height = length + '%';
+                line.style.transform = `rotate(${angle + 90}deg)`;
+                container.appendChild(line);
+            }
+        }
+    }
+}
+
+function createShootingStars(container) {
+    for (let i = 0; i < 3; i++) {
+        const shootingStar = document.createElement('div');
+        shootingStar.className = 'shooting-star';
+        shootingStar.style.left = (Math.random() * 50) + '%';
+        shootingStar.style.top = (Math.random() * 50) + '%';
+        shootingStar.style.animationDelay = (i * 7) + 's';
+        shootingStar.style.animationDuration = (2 + Math.random()) + 's';
+        container.appendChild(shootingStar);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    createStars();
+});
+
+function showServiceDetails(serviceType) {
+    currentService = serviceType;
+    const service = servicesData[serviceType];
+    const content = `
+        <h2 style="color: var(--gold); margin-bottom: 15px;">${service.title}</h2>
+        
+        ${service.detailedDescription.main ? 
+            `<p style="margin-bottom: 25px; font-size: 1.05rem; line-height: 1.8; color: var(--text-gray);">${service.detailedDescription.main.trim()}</p>` 
+            : ''
+        }
+        
+        <div style="margin-bottom: 30px;">
+            <h3 style="color: var(--gold); margin-bottom: 8px; font-size: 1.3rem; text-transform: uppercase; letter-spacing: 1px;">
+                ${service.detailedDescription.forWhom.split('\n')[0]}
+            </h3>
+            <div style="white-space: pre-line; line-height: 1.8; color: var(--text-gray);">
+                ${service.detailedDescription.forWhom.split('\n').slice(1).join('\n').trim()}
+            </div>
+        </div>
+        
+        <div style="margin-bottom: 30px;">
+            <h3 style="color: var(--gold); margin-bottom: 8px; font-size: 1.3rem; text-transform: uppercase; letter-spacing: 1px;">
+                ${service.detailedDescription.whatYouGet.split('\n')[0]}
+            </h3>
+            <div style="white-space: pre-line; line-height: 1.8; color: var(--text-gray);">
+                ${service.detailedDescription.whatYouGet.split('\n').slice(1).join('\n').trim()}
+            </div>
+        </div>
+        
+        ${service.detailedDescription.keyPoints ? 
+            `<div style="background: var(--medium-gray); padding: 25px; border-left: 4px solid var(--gold); margin: 30px 0;">
+                <h3 style="color: var(--gold); margin: 0 0 8px 0; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1px;">
+                    ${service.detailedDescription.keyPoints.split('\n')[0]}
+                </h3>
+                <div style="white-space: pre-line; line-height: 1.8; color: var(--text-gray);">
+                    ${service.detailedDescription.keyPoints.split('\n').slice(1).join('\n').trim()}
+                </div>
+            </div>` 
+            : ''
+        }
+        
+        <p style="text-align: center; color: var(--text-gray); margin: 30px 0; font-size: 0.95rem; font-style: italic;">
+            ${service.detailedDescription.format}
+        </p>
+
+        <div class="service-price" style="margin-top: 30px;">
+            <div class="price-option">
+                <div class="price-label">Standard (24h)</div>
+                <div class="price-value"><small>$</small>${service.standardPrice}</div>
+            </div>
+            <div class="price-option">
+                <div class="price-label">Express (2h)</div>
+                <div class="price-value"><small>$</small>${service.expressPrice}</div>
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('serviceDetailsContent').innerHTML = content;
+    document.getElementById('serviceDetailsModal').classList.add('active');
+}
+
+function closeServiceDetails() {
+    document.getElementById('serviceDetailsModal').classList.remove('active');
+}
+
+function startOrder() {
+    closeServiceDetails();
+    openOrderModal();
+}
+
+function openOrderModal() {
+    const service = servicesData[currentService];
+    
+    document.getElementById('modalTitle').textContent = `Order: ${service.title}`;
+    document.getElementById('standardPrice').textContent = '$' + service.standardPrice;
+    document.getElementById('expressPrice').textContent = '$' + service.expressPrice;
+
+    currentStep = 1;
+    showStep(1);
+
+    const questionsContainer = document.getElementById('serviceQuestions');
+    questionsContainer.innerHTML = '<h3>A Few Questions</h3>';
+
+    service.questions.forEach(q => {
+        const div = document.createElement('div');
+        div.className = 'form-group';
+
+        if (q.type === 'textarea') {
+            div.innerHTML = `
+                <label>${q.label}</label>
+                <textarea id="${q.id}" required maxlength="1000" oninput="updateCharCount('${q.id}')"></textarea>
+                <div style="text-align: right; font-size: 0.85rem; color: var(--text-gray); margin-top: 5px;">
+                    <span id="${q.id}-count">0</span> / 1000 characters (max ~200 words)
+                </div>
+            `;
+        } else {
+        div.innerHTML = `
+            <label>${q.label}</label>
+            <input type="text" id="${q.id}" required maxlength="50">
+            <div style="text-align: right; font-size: 0.85rem; color: var(--text-gray); margin-top: 5px;">
+                <span id="${q.id}-count">0</span> / 50 characters
+            </div>
+        `;
+    }
+
+    questionsContainer.appendChild(div);
+
+    // Add event listener
+    const field = document.getElementById(q.id);
+    field.addEventListener('input', () => updateCharCount(q.id));
+});
+    
+    selectedDelivery = 'standard';
+    document.querySelectorAll('.delivery-option').forEach(el => el.classList.remove('selected'));
+    document.querySelector('.delivery-option').classList.add('selected');
+    
+    document.getElementById('orderModal').classList.add('active');
+}
+
+function closeModal() {
+    document.getElementById('orderModal').classList.remove('active');
+    showStep(1);
+}
+
+async function toggleInvoiceFields() {
+    const checkbox = document.getElementById('wantInvoice');
+    const invoiceFields = document.getElementById('invoiceFields');
+    const companyInput = document.getElementById('companyName');
+    const nipInput = document.getElementById('nip');
+    const streetInput = document.getElementById('street');
+    const postalInput = document.getElementById('postalCode');
+    const cityInput = document.getElementById('city');
+    
+    if (checkbox.checked) {
+        // Invoice - show company fields and require everything
+        invoiceFields.style.display = 'block';
+        companyInput.required = true;
+        nipInput.required = true;
+        streetInput.required = true;
+        postalInput.required = true;
+        cityInput.required = true;
+    } else {
+        // Private individual - hide company fields and don't require address
+        invoiceFields.style.display = 'none';
+        companyInput.required = false;
+        nipInput.required = false;
+        streetInput.required = false;
+        postalInput.required = false;
+        cityInput.required = false;
+    }
+        // Update summary after VAT change
+    if (currentStep === 3) {
+        updatePaymentSummary();
+
+        // Update elements with new amount (after VAT change)
+        const priceDetails = calculateFinalPrice();
+        if (elements) {
+            elements.update({
+                amount: priceDetails.finalPrice * 100,
+                currency: 'usd'
+            });
+            console.log('✓ Amount updated after VAT toggle:', priceDetails.finalPrice, 'USD');
+        }
+    }
+}
+
+function selectDelivery(type) {
+    selectedDelivery = type;
+    document.querySelectorAll('.delivery-option').forEach(el => el.classList.remove('selected'));
+    event.currentTarget.classList.add('selected');
+}
+
+function showStep(step) {
+    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+    document.getElementById('step' + step).classList.add('active');
+    
+    document.querySelectorAll('.progress-step').forEach((s, i) => {
+        s.classList.remove('active', 'completed');
+        if (i + 1 < step) s.classList.add('completed');
+        if (i + 1 === step) s.classList.add('active');
+    });
+    
+    currentStep = step;
+    
+    if (step === 3) {
+        const nameFromStep2 = document.getElementById('fullName').value;
+        document.getElementById('billingName').value = nameFromStep2;
+
+        setupStripePayment();
+        updatePaymentSummary();
+    }
+}
+
+function goToStep(step) {
+    // Allow going back without validation
+    if (step < currentStep) {
+        showStep(step);
+        return;
+    }
+    
+    // Do przodu - waliduj
+    if (step === 2) {
+        showStep(2);
+    } else if (step === 3) {
+        const form = document.getElementById('analysisForm');
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+        showStep(3);
+    }
+}
+
+function nextStep(step) {
+    if (step === 2) {
+        showStep(2);
+    } else if (step === 3) {
+        const form = document.getElementById('analysisForm');
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+        
+        // Check the limits on all fields
+        const service = servicesData[currentService];
+        for (const q of service.questions) {
+            const field = document.getElementById(q.id);
+            const maxLength = q.type === 'textarea' ? 1000 : 50;
+            
+            if (field.value.length > maxLength) {
+                alert(`Field "${q.label}" exceeds the ${maxLength} character limit!`);
+                field.focus();
+                return;
+            }
+        }
+        
+        showStep(3);
+    }
+}
+
+function calculateFinalPrice() {
+    const service = servicesData[currentService];
+    let basePrice = selectedDelivery === 'standard' ? service.standardPrice : service.expressPrice;
+
+    // Apply discount if present
+    if (appliedDiscount && discountedPrice) {
+        basePrice = discountedPrice;
+    }
+
+    // Add VAT if checkbox is checked
+    const wantsInvoice = document.getElementById('wantInvoice').checked;
+    const vatAmount = wantsInvoice ? Math.round(basePrice * 0.23) : 0;
+    const finalPrice = basePrice + vatAmount;
+    
+    return {
+        basePrice,
+        vatAmount,
+        finalPrice,
+        hasDiscount: appliedDiscount && discountedPrice,
+        hasVAT: wantsInvoice
+    };
+}
+
+async function setupStripePayment() {
+    // Check if already setup
+    if (document.getElementById('payment-element').hasChildNodes()) {
+        return;
+    }
+    
+    try {
+        console.log('🔧 Setting up Stripe Payment Element...');
+
+        // Calculate the current price (needed for amount)
+        const priceDetails = calculateFinalPrice();
+        console.log('💰 Initial amount:', priceDetails.finalPrice, 'USD');
+
+        // STEP 1: Create elements in 'payment' mode
+        elements = stripe.elements({
+            locale: 'en',
+            mode: 'payment',
+            amount: priceDetails.finalPrice * 100,  // in cents
+            currency: 'usd',
+            appearance: {
+                theme: 'night',
+                variables: {
+                    colorPrimary: '#d4a574',
+                    colorBackground: '#1a1a1a',
+                    colorText: '#f5f5f5',
+                    colorDanger: '#ff6b6b',
+                    fontFamily: 'Source Sans Pro, sans-serif',
+                    borderRadius: '4px'
+                }
+            }
+        });
+        
+        console.log('✓ Elements created');
+
+        // STEP 2: Create the Payment Element
+        const paymentElement = elements.create('payment');
+        paymentElement.mount('#payment-element');
+
+        console.log('✓ Payment element mounted');
+
+        // STEP 3: Error handling
+        paymentElement.on('change', (event) => {
+            const displayError = document.getElementById('card-errors');
+            if (event.error) {
+                displayError.textContent = event.error.message;
+            } else {
+                displayError.textContent = '';
+            }
+        });
+
+        console.log('✓ Error handling configured');
+
+        // STEP 4: CRITICAL - Add the event listener to the button
+        const submitButton = document.getElementById('submit-payment');
+        if (submitButton) {
+            // Remove old listeners (if any)
+            const newButton = submitButton.cloneNode(true);
+            submitButton.parentNode.replaceChild(newButton, submitButton);
+
+            // Add the new listener
+            newButton.addEventListener('click', handlePayment);
+            console.log('✓ Payment button listener attached');
+        } else {
+            console.error('❌ Submit button not found!');
+        }
+
+        console.log('✅ Payment element ready');
+
+    } catch (error) {
+        console.error('❌ Setup error:', error);
+        alert('Error initializing payment. Please try again.');
+    }
+}
+
+function updatePaymentSummary() {
+    const service = servicesData[currentService];
+    const deliveryText = selectedDelivery === 'standard' ? 'Standard (24h)' : 'Express (2h)';
+    const priceDetails = calculateFinalPrice();
+
+    document.getElementById('summaryService').textContent = service.title;
+    document.getElementById('summaryDelivery').textContent = deliveryText;
+
+    // Display price details
+    let priceHTML = '';
+
+    if (priceDetails.hasDiscount) {
+        priceHTML += `<span style="text-decoration: line-through; opacity: 0.5;">$${selectedDelivery === 'standard' ? service.standardPrice : service.expressPrice}</span> → `;
+    }
+
+    priceHTML += `$${priceDetails.basePrice}`;
+
+    if (priceDetails.hasVAT) {
+        priceHTML += ` + VAT ($${priceDetails.vatAmount})`;
+    }
+
+    document.getElementById('summaryPrice').innerHTML = priceHTML;
+    document.getElementById('summaryFinal').textContent = '$' + priceDetails.finalPrice;
+}
+
+async function handlePayment() {
+    const button = document.getElementById('submit-payment');
+    const buttonText = document.getElementById('button-text');
+    const spinner = document.getElementById('spinner');
+    
+    button.disabled = true;
+    buttonText.style.display = 'none';
+    spinner.style.display = 'inline';
+    
+    try {
+        const termsCheckbox = document.getElementById('acceptTerms');
+        if (!termsCheckbox || !termsCheckbox.checked) {
+            throw new Error('You must accept the Terms of Service and Privacy Policy');
+        }
+
+        console.log('=== PRE-PAYMENT VALIDATION ===');
+
+        // Check pronouns
+        const pronouns = getPronounsValue();
+        if (!pronouns) {
+            throw new Error('No pronouns selected');
+        }
+        console.log('✓ Pronouns:', pronouns);
+
+        // Check billing name
+        const billingName = document.getElementById('billingName').value;
+        if (!billingName) {
+            throw new Error('Please provide a billing name');
+        }
+        console.log('✓ Billing name OK');
+
+        // Check email
+        const email = document.getElementById('email').value;
+        if (!email) {
+            throw new Error('Please provide an email address');
+        }
+        console.log('✓ Email OK');
+
+        // If invoice requested - check the fields
+        const wantInvoice = document.getElementById('wantInvoice').checked;
+        if (wantInvoice) {
+            const required = ['companyName', 'nip', 'street', 'city', 'postalCode'];
+            for (const fieldId of required) {
+                if (!document.getElementById(fieldId).value) {
+                    throw new Error('Please fill in all VAT invoice fields');
+                }
+            }
+            console.log('✓ Invoice fields OK');
+        }
+
+        // Check the questions
+        const service = servicesData[currentService];
+        for (const q of service.questions) {
+            const field = document.getElementById(q.id);
+            if (!field.value) {
+                throw new Error(`Please answer the question: ${q.label}`);
+            }
+        }
+        console.log('✓ Service questions OK');
+
+        // CRITICAL STEP: Calculate the final price
+        const priceDetails = calculateFinalPrice();
+
+        // UPDATE elements with the final amount (in case discount/VAT changed)
+        elements.update({
+            amount: priceDetails.finalPrice * 100,
+            currency: 'usd'
+        });
+        console.log('✓ Elements updated with final amount');
+
+        console.log('=== CREATING PAYMENT INTENT ===');
+        console.log('Amount:', priceDetails.finalPrice, 'USD');
+        console.log('Base:', priceDetails.basePrice, 'USD');
+        console.log('VAT:', priceDetails.vatAmount, 'USD');
+        console.log('Discount:', priceDetails.hasDiscount);
+
+        // CREATE the payment intent with the final price
+        const intentResponse = await fetch(`${API_URL}/create-payment-intent`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                amount: priceDetails.finalPrice
+            })
+        });
+        
+        const intentData = await intentResponse.json();
+        clientSecret = intentData.clientSecret;
+        
+        console.log('✓ Payment intent created:');
+        
+        // Pass clientSecret to elements
+        await elements.submit();
+
+        console.log('=== PROCESSING PAYMENT ===');
+
+        // PAYMENT
+        const {error, paymentIntent} = await stripe.confirmPayment({
+            elements,
+            clientSecret: clientSecret,
+            confirmParams: {
+                return_url: window.location.origin + '/success.html',
+                payment_method_data: {
+                    billing_details: {
+                        name: billingName,
+                        email: email,
+                        address: {
+                            line1: document.getElementById('street').value || '',
+                            postal_code: document.getElementById('postalCode').value || '',
+                            city: document.getElementById('city').value || '',
+                            country: 'US'
+                        }
+                    }
+                }
+            },
+            redirect: 'if_required'
+        });
+
+        if (error) {
+            throw new Error(error.message);
+        }
+
+        if (paymentIntent.status !== 'succeeded') {
+            throw new Error('Payment failed: ' + paymentIntent.status);
+        }
+
+        console.log('✓ Payment successful:');
+        console.log('✓ Amount charged:', paymentIntent.amount / 100, 'USD');
+
+        // SAVE ORDER
+        try {
+            await submitOrder(paymentIntent.id);
+            console.log('✓ Order saved and success page shown');
+
+        } catch (orderError) {
+            console.error('❌ Order save failed!', orderError);
+            console.error('Payment Intent ID:', paymentIntent.id);
+
+            // Backend has already issued an auto-refund
+            alert(
+                `⚠️ IMPORTANT - PAYMENT CANCELED\n\n` +
+                `${orderError.message}\n\n` +
+                `Your payment has been automatically refunded.\n` +
+                `The funds will return to your account within 5-10 business days.\n\n` +
+                `You can try again or contact us:\n` +
+                `📧 contact@astrofinance.pro\n\n` +
+                `Payment reference (just in case):\n${paymentIntent.id}`
+            );
+
+            // Show the error on the page
+            const paymentMessage = document.getElementById('payment-message');
+            if (paymentMessage) {
+                paymentMessage.textContent = 'There was an error saving your order. The payment has been canceled.';
+                paymentMessage.style.display = 'block';
+            }
+
+            return;
+        }
+
+    } catch (error) {
+        console.error('Payment error:', error);
+        alert('Error: ' + error.message);
+
+        button.disabled = false;
+        buttonText.style.display = 'inline';
+        spinner.style.display = 'none';
+    }
+}
+
+async function submitOrder(paymentIntentId) {
+    const service = servicesData[currentService];
+    const priceDetails = calculateFinalPrice();
+    
+    const orderData = {
+        orderNumber: 'AF' + Date.now(),
+        timestamp: new Date().toISOString(),
+        service: currentService,
+        serviceTitle: service.title,
+        delivery: selectedDelivery,
+        price: priceDetails.finalPrice,
+        originalPrice: selectedDelivery === 'standard' ? service.standardPrice : service.expressPrice,
+        discountApplied: priceDetails.hasDiscount,
+        vatIncluded: priceDetails.hasVAT,
+        paymentIntentId: paymentIntentId,
+        personalInfo: {
+            name: document.getElementById('fullName').value,
+            pronouns: getPronounsValue(),
+            email: document.getElementById('email').value,
+            birthDate: document.getElementById('birthDate').value,
+            birthTime: document.getElementById('birthTime').value || 'Unknown',
+            birthPlace: document.getElementById('birthPlace').value
+        },
+        billingInfo: {
+            name: document.getElementById('billingName').value,
+            street: document.getElementById('street').value || null,
+            postalCode: document.getElementById('postalCode').value || null,
+            city: document.getElementById('city').value || null,
+            wantInvoice: document.getElementById('wantInvoice').checked,
+            companyName: document.getElementById('companyName').value || null,
+            nip: document.getElementById('nip').value || null
+        },
+        answers: {}
+    };
+    
+    service.questions.forEach(q => {
+        orderData.answers[q.id] = document.getElementById(q.id).value;
+    });
+    
+    console.log('Sending order to backend...');
+    
+    const response = await fetch(`${API_URL}/orders`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(orderData)
+    });
+    
+    // CHECK FOR SUCCESS
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        console.error('❌ Order save failed:', errorData);
+
+        // Throw error - will be caught in handlePayment
+        throw new Error(
+            errorData.details ?
+            `Failed to save your order:\n${errorData.details.join('\n')}` :
+            `Failed to save your order. Error: ${errorData.error || 'Unknown server error'}`
+        );
+    }
+
+    const result = await response.json();
+    console.log('✅ Order saved successfully:', result);
+
+    // SHOW SUCCESS MESSAGE
+    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+    document.getElementById('successMessage').classList.add('active');
+    document.getElementById('orderNumber').textContent = orderData.orderNumber;
+    document.getElementById('confirmEmail').textContent = orderData.personalInfo.email;
+    document.getElementById('deliveryInfo').textContent = selectedDelivery === 'standard' ? 'within 24 hours' : 'within 2 hours';
+}
+
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    });
+});
+
+console.log('%c🌟 ASTROFINANCE.PRO 🌟', 'font-size: 24px; font-weight: bold; color: #d4a574;');
+console.log('The stars lead. We help you read them. ⭐');
+
+function toggleCustomPronouns() {
+    const select = document.getElementById('pronounsSelect');
+    const customInput = document.getElementById('customPronouns');
+    const counterContainer = document.getElementById('pronouns-count-container');
+    
+    if (select.value === 'custom') {
+        customInput.style.display = 'block';
+        counterContainer.style.display = 'block';
+        customInput.required = true;
+    } else {
+        customInput.style.display = 'none';
+        counterContainer.style.display = 'none';
+        customInput.required = false;
+        customInput.value = '';
+    }
+}
+
+// Dodaj listener dla countera
+document.addEventListener('DOMContentLoaded', function() {
+    const customInput = document.getElementById('customPronouns');
+    if (customInput) {
+        customInput.addEventListener('input', () => {
+            document.getElementById('pronouns-count').textContent = customInput.value.length;
+        });
+    }
+});
+
+function getPronounsValue() {
+    const select = document.getElementById('pronounsSelect');
+    if (select.value === 'custom') {
+        return document.getElementById('customPronouns').value || 'osoba';
+    }
+    return select.value;
+}
+
+// Dodaj listener dla countera
+document.addEventListener('DOMContentLoaded', function() {
+    const customInput = document.getElementById('customPronouns');
+    if (customInput) {
+        customInput.addEventListener('input', () => {
+            document.getElementById('pronouns-count').textContent = customInput.value.length;
+        });
+    }
+});
+
+let appliedDiscount = false;
+let discountedPrice = null;
+
+async function applyDiscountCode() {
+    const codeInput = document.getElementById('discountCode');
+    const messageDiv = document.getElementById('discountMessage');
+    const code = codeInput.value.trim();
+    
+    if (!code) {
+        messageDiv.style.color = '#ff6b6b';
+        messageDiv.textContent = 'Wpisz kod rabatowy';
+        return;
+    }
+    
+    messageDiv.textContent = 'Checking...';
+    messageDiv.style.color = '#b8b8b8';
+    
+    try {
+        // Recalculate the current price
+        const service = servicesData[currentService];
+        const currentPrice = selectedDelivery === 'standard' ? service.standardPrice : service.expressPrice;
+        
+        const response = await fetch(`${API_URL}/validate-discount`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                discountCode: code,
+                originalPrice: currentPrice
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.valid) {
+            appliedDiscount = true;
+            discountedPrice = result.newPrice;
+            messageDiv.style.color = '#4ade80';
+            messageDiv.textContent = '✓ Discount code applied!';
+            
+            // Zaktualizuj summary
+            updatePaymentSummary();
+
+            // Update elements with the new amount (after applying the discount)
+            const priceDetails = calculateFinalPrice();
+            if (elements) {
+                elements.update({
+                    amount: priceDetails.finalPrice * 100,
+                    currency: 'usd'
+                });
+                console.log('✓ Amount updated after discount:', priceDetails.finalPrice, 'USD');
+            }
+
+        } else {
+            appliedDiscount = false;
+            discountedPrice = null;
+            messageDiv.style.color = '#ff6b6b';
+            messageDiv.textContent = '✗ ' + result.message;
+        }
+    } catch (error) {
+        messageDiv.style.color = '#ff6b6b';
+        messageDiv.textContent = 'Error checking the code';
+        console.error('Discount error:', error);
+    }
+}
+
+function updateDisplayedPrice(newPrice) {
+    // Find the price element and update it
+    const priceElements = document.querySelectorAll('.price, [class*="price"]');
+    priceElements.forEach(el => {
+        if (el.textContent.includes('$')) {
+            el.textContent = `$${newPrice}`;
+        }
+    });
+}
+
+function updateCharCount(fieldId) {
+    const field = document.getElementById(fieldId);
+    const counter = document.getElementById(fieldId + '-count');
+    
+    if (field && counter) {
+        const length = field.value.length;
+        const maxLength = parseInt(field.getAttribute('maxlength')) || 1000;
+        
+        counter.textContent = length;
+        
+        // Change color when close to the limit
+        const percentage = length / maxLength;
+        if (percentage > 0.95) {
+            counter.style.color = '#ff6b6b';  // Red
+        } else if (percentage > 0.8) {
+            counter.style.color = '#ffa94d';  // Orange
+        } else {
+            counter.style.color = 'var(--text-gray)';  // Normal
+        }
+    }
+}
+
+    </script>
+
+    <!-- Cookie Banner -->
+<div id="cookieBanner" style="position: fixed; bottom: 0; left: 0; right: 0; background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%); padding: 25px 20px; border-top: 3px solid #d4a574; z-index: 10000; box-shadow: 0 -5px 30px rgba(0,0,0,0.5); display: none;">
+    <div style="max-width: 1200px; margin: 0 auto;">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 30px; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 300px;">
+                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 12px;">
+                    <span style="font-size: 2rem;">🌙🍪</span>
+                    <h3 style="font-family: 'Oswald', sans-serif; color: #d4a574; margin: 0; font-size: 1.3rem; text-transform: uppercase; letter-spacing: 1px;">
+                        Cosmic Cookies
+                    </h3>
+                </div>
+                <p style="color: #f5f5f5; margin: 0 0 10px 0; font-size: 0.95rem; line-height: 1.6;">
+                    Just like the stars in the sky, cookies on this site help guide you safely through checkout.
+                    We use only technical cookies from <strong>Stripe</strong> (our payment processor), which are necessary to process your transaction.
+                </p>
+                <details style="color: #b8b8b8; font-size: 0.85rem; margin-top: 10px; cursor: pointer;">
+                    <summary style="color: #d4a574; cursor: pointer; user-select: none;">Which ones, exactly? ⬇️</summary>
+                    <ul style="margin: 10px 0 0 20px; line-height: 1.8;">
+                        <li><code style="background: #2a2a2a; padding: 2px 6px; border-radius: 3px; color: #d4a574;">__stripe_mid</code> — recognizes you as a unique user (1 year)</li>
+                        <li><code style="background: #2a2a2a; padding: 2px 6px; border-radius: 3px; color: #d4a574;">__stripe_sid</code> — remembers your payment session (30 minutes)</li>
+                        <li><code style="background: #2a2a2a; padding: 2px 6px; border-radius: 3px; color: #d4a574;">m</code> — optimizes payment processing speed (1 year)</li>
+                    </ul>
+                    <p style="margin: 10px 0 0 0; font-size: 0.8rem; opacity: 0.8;">
+                        Without them, we couldn't process payments securely. Zero tracking, zero ads — just technical support for your transaction.
+                    </p>
+                </details>
+                <p style="color: #b8b8b8; font-size: 0.85rem; margin-top: 10px;">
+                    By continuing, you accept their use.
+                    <a href="privacy.html" target="_blank" style="color: #d4a574; text-decoration: underline;">Full Privacy Policy</a>
+                </p>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 10px; align-items: flex-end;">
+                <button onclick="acceptCookies()" style="background: #d4a574; color: #0d0d0d; border: none; padding: 15px 35px; cursor: pointer; font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; border-radius: 4px; transition: all 0.3s; white-space: nowrap;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='#d4a574'">
+                    ✨ Got It
+                </button>
+                <span style="color: #b8b8b8; font-size: 0.75rem; opacity: 0.7;">We don't collect marketing data</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function acceptCookies() {
+    localStorage.setItem('astro_cookieConsent', 'true');
+    const banner = document.getElementById('cookieBanner');
+    banner.style.animation = 'slideDown 0.5s ease-out';
+    setTimeout(() => {
+        banner.style.display = 'none';
+    }, 500);
+}
+
+// Show banner if not accepted
+window.addEventListener('DOMContentLoaded', function() {
+    if (!localStorage.getItem('astro_cookieConsent')) {
+        const banner = document.getElementById('cookieBanner');
+        banner.style.display = 'block';
+        banner.style.animation = 'slideUp 0.5s ease-out';
+    }
+});
+
+// Animacje
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideUp {
+        from { transform: translateY(100%); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+    @keyframes slideDown {
+        from { transform: translateY(0); opacity: 1; }
+        to { transform: translateY(100%); opacity: 0; }
+    }
+    #cookieBanner details[open] summary {
+        margin-bottom: 10px;
+    }
+`;
+document.head.appendChild(style);
+</script>
+
+</body>
+</html>
