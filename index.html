@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AstroFinance.Pro - Professional Business Astrology</title>
+    <title>AstroBusiness.Pro - Professional Business Astrology</title>
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="visuals/logo.svg">
@@ -677,8 +677,8 @@
     <nav>
         <div class="container">
             <div class="logo">
-                <img src="visuals/logo.svg" alt="AstroFinance" style="height: 40px; vertical-align: middle; margin-right: 15px;">
-                ASTROFINANCE.PRO
+                <img src="visuals/logo.svg" alt="AstroBusiness" style="height: 40px; vertical-align: middle; margin-right: 15px;">
+                ASTROBUSINESS.PRO
             </div>
             <ul class="nav-links">
                 <li><a href="#home">Home</a></li>
@@ -841,12 +841,12 @@
 
                 <p>We don't look to the stars for an oracle. We look for a moment to rethink strategy, widen our perspective, and view our goals with some distance. It works — our decisions become more considered, our timing better, our direction clearer.</p>
 
-                <p>Over time, our hobby became a profession. We combined business experience with astrological knowledge and created AstroFinance.Pro — a place where other leaders and entrepreneurs can find the same thing we did: a moment to pause, reflect, and get real support in building a deliberate strategy aimed at success.</p>
+                <p>Over time, our hobby became a profession. We combined business experience with astrological knowledge and created AstroBusiness.Pro — a place where other leaders and entrepreneurs can find the same thing we did: a moment to pause, reflect, and get real support in building a deliberate strategy aimed at success.</p>
 
                 <p>The stars lead. We help you read them.</p>
 
                 <div class="signature">
-                    - The Founders of AstroFinance.Pro
+                    - The Founders of AstroBusiness.Pro
                 </div>
             </div>
         </div>
@@ -854,8 +854,8 @@
 
     <footer>
         <div class="container">
-            <img src="visuals/logo.svg" alt="AstroFinance" style="height: 50px; margin-bottom: 20px; opacity: 0.6;">
-            <p style="font-size: 1.1rem; margin-bottom: 20px;">© 2026 AstroFinance.Pro - All rights reserved</p>
+            <img src="visuals/logo.svg" alt="AstroBusiness" style="height: 50px; margin-bottom: 20px; opacity: 0.6;">
+            <p style="font-size: 1.1rem; margin-bottom: 20px;">© 2026 AstroBusiness.Pro - All rights reserved</p>
             <p style="opacity: 0.6; font-size: 0.9rem; margin-bottom: 20px;">Professional business astrology | Advanced AI-powered analysis</p>
 
             <div style="margin-top: 30px; padding-top: 30px; border-top: 1px solid var(--light-gray);">
@@ -863,7 +863,7 @@
                 <span style="color: var(--light-gray);">|</span>
                 <a href="terms.html" target="_blank">Terms of Service</a>
                 <span style="color: var(--light-gray);">|</span>
-                <a href="mailto:contact@astrofinance.pro" style="color: var(--text-gray);">Contact</a>
+                <a href="mailto:contact@astrobusiness.pro" style="color: var(--text-gray);">Contact</a>
             </div>
 
             <p style="margin-top: 30px; font-size: 0.85rem; opacity: 0.5;">
@@ -980,7 +980,7 @@
     <label>Business Tax ID (optional)</label>
     <input type="text" id="taxId" placeholder="EIN / VAT / Tax ID — leave blank for a personal purchase">
     <p style="font-size: 0.85rem; opacity: 0.7; margin-top: 6px;">
-        You'll get a standard receipt automatically. Need a full business invoice with your company name and address? Email us at contact@astrofinance.pro after checkout and we'll send one over.
+        You'll get a standard receipt automatically. Need a full business invoice with your company name and address? Email us at contact@astrobusiness.pro after checkout and we'll send one over.
     </p>
 </div>
 
@@ -1095,7 +1095,7 @@
     </div>
 
     <script>
-const API_URL = 'https://api.astrofinance.pro/api';
+const API_URL = 'https://api.astrobusiness.pro/api';
 const STRIPE_KEY = 'pk_live_51So0sBEr4XypIDmPLIeH3SMrK0afzlS5fImkXMm9TLrzI9l6I2xxmfRIvx9CLDauW0eB7pClbb2EDIiEfEpTnQLN002USmcoMG';
 
 const stripe = Stripe(STRIPE_KEY);
@@ -1917,7 +1917,7 @@ async function handlePayment() {
                 `Your payment has been automatically refunded.\n` +
                 `The funds will return to your account within 5-10 business days.\n\n` +
                 `You can try again or contact us:\n` +
-                `📧 contact@astrofinance.pro\n\n` +
+                `📧 contact@astrobusiness.pro\n\n` +
                 `Payment reference (just in case):\n${paymentIntent.id}`
             );
 
@@ -1946,7 +1946,7 @@ async function submitOrder(paymentIntentId, finalAmount) {
     const priceDetails = calculateFinalPrice();
 
     const orderData = {
-        orderNumber: 'AF' + Date.now(),
+        orderNumber: 'AB' + Date.now(),
         timestamp: new Date().toISOString(),
         service: currentService,
         serviceTitle: service.title,
@@ -2019,7 +2019,7 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
-console.log('%c🌟 ASTROFINANCE.PRO 🌟', 'font-size: 24px; font-weight: bold; color: #d4a574;');
+console.log('%c🌟 ASTROBUSINESS.PRO 🌟', 'font-size: 24px; font-weight: bold; color: #d4a574;');
 console.log('The stars lead. We help you read them. ⭐');
 
 function toggleCustomPronouns() {
