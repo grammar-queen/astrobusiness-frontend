@@ -2039,7 +2039,7 @@ function toggleCustomPronouns() {
     }
 }
 
-// Dodaj listener dla countera
+// Add listener for the character counter
 document.addEventListener('DOMContentLoaded', function() {
     const customInput = document.getElementById('customPronouns');
     if (customInput) {
@@ -2052,12 +2052,12 @@ document.addEventListener('DOMContentLoaded', function() {
 function getPronounsValue() {
     const select = document.getElementById('pronounsSelect');
     if (select.value === 'custom') {
-        return document.getElementById('customPronouns').value || 'osoba';
+        return document.getElementById('customPronouns').value || 'person';
     }
     return select.value;
 }
 
-// Dodaj listener dla countera
+// Add listener for the character counter
 document.addEventListener('DOMContentLoaded', function() {
     const customInput = document.getElementById('customPronouns');
     if (customInput) {
@@ -2077,7 +2077,7 @@ async function applyDiscountCode() {
     
     if (!code) {
         messageDiv.style.color = '#ff6b6b';
-        messageDiv.textContent = 'Wpisz kod rabatowy';
+        messageDiv.textContent = 'Please enter a discount code';
         return;
     }
     
@@ -2106,7 +2106,7 @@ async function applyDiscountCode() {
             messageDiv.style.color = '#4ade80';
             messageDiv.textContent = '✓ Discount code applied!';
             
-            // Zaktualizuj summary
+            // Update summary
             updatePaymentSummary();
 
             // Update elements with the new amount (after applying the discount)
